@@ -1,18 +1,24 @@
 import { EventAggregator } from 'aurelia-event-aggregator';
-import { WebAPI } from './resources/web-api';
-import { ContactUpdated, ContactViewed } from './messages';
 import { inject } from 'aurelia-framework';
 
-@inject(WebAPI, EventAggregator)
+import { WebAPI } from './resources/web-api';
+import { ContactUpdated, ContactViewed } from './messages';
+
+import { ApplicantsAPI } from './services/api.service';
+import { Applicant } from './interfaces/applicant.interface';
+
+@inject(WebAPI, EventAggregator, ApplicantsAPI)
 export class ApplicantList {
     public api: any;
     public contacts: any[];
     public selectedId: number;
     public ea: EventAggregator;
+    public applicantsAPI: ApplicantsAPI;
 
-    constructor(api, ea) {
+    constructor(api, ea: EventAggregator, applicantsAPI: ApplicantsAPI) {
         this.api = api;
         this.ea = ea;
+        this.applicantsAPI = applicantsAPI;
         this.contacts = [];
 
         ea.subscribe(ContactViewed, msg => this.select(msg.contact));
@@ -25,6 +31,12 @@ export class ApplicantList {
 
     created(): void {
         this.api.getContactList().then(contacts => this.contacts = contacts);
+
+
+        this.applicantsAPI.getApplicants()
+            .then((applicants: Applicant[]) => {
+                console.log('applicants from server', applicants);
+            });
     }
 
     select(contact): boolean {

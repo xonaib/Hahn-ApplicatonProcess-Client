@@ -13,7 +13,7 @@ export class App {
 
     config.map([
       { route: '',              moduleId: PLATFORM.moduleName('no-selection'),   title: 'Select' },
-      { route: 'applicant/:id',  moduleId: PLATFORM.moduleName('applicant-detail'), name:'applicant-edit' }
+      { route: 'applicant/:id?',  moduleId: PLATFORM.moduleName('applicant-detail'), name:'applicant-edit' }
     ]);
 
     this.router = router; 

@@ -1,43 +1,63 @@
 <template>
-    <div class="card">
-      <div class="card-header text-white bg-primary">
-        Profile
-        ${contact.firstName}
-      </div>
-      <div class="card-body">
-        <form role="form">
-          <div class="form-group row">
-            <label class="col-md-3 col-form-label">First Name</label>
-            <div class="col-md-9">
-              <input type="text" placeholder="first name" class="form-control" value.bind="contact.firstName">
-            </div>
-          </div>
-  
-          <div class="form-group row">
-            <label class="col-md-3 col-form-label">Last Name</label>
-            <div class="col-md-9">
-              <input type="text" placeholder="last name" class="form-control" value.bind="contact.lastName">
-            </div>
-          </div>
-  
-          <div class="form-group row">
-            <label class="col-md-3 col-form-label">Email</label>
-            <div class="col-md-9">
-              <input type="text" placeholder="email" class="form-control" value.bind="contact.email">
-            </div>
-          </div>
-  
-          <div class="form-group row">
-            <label class="col-md-3 col-form-label">Phone Number</label>
-            <div class="col-md-9">
-              <input type="text" placeholder="phone number" class="form-control" value.bind="contact.phoneNumber">
-            </div>
-          </div>
-        </form>
-        <div>
-          <button class="btn btn-success float-right" click.delegate="save()" disabled.bind="!canSave">Save</button>
+  <div class="card">
+    <div class="card-header text-white bg-primary">
+      Profile      
+    </div>
+    <div class="card-body">
+      <form role="form" if.bind="applicant != null">
+        
+        <div class="form-group row">
+          <label class="col-md-3 col-form-label">Errors</label>
+          <ul if.bind="validationController.errors">
+            <li repeat.for="error of validationController.errors">
+              ${error.message}
+            </li>
+          </ul>
         </div>
+       
+        
+
+        <div class="form-group row">
+          <label class="col-md-3 col-form-label">First Name</label>
+          <div class="col-md-9">
+            <input type="text" placeholder="first name" class="form-control" value.bind="applicant.Name & validate">
+          </div>
+        </div>
+
+        <div class="form-group row">
+          <label class="col-md-3 col-form-label">Last Name</label>
+          <div class="col-md-9">
+            <input type="text" placeholder="last name" class="form-control"
+              value.bind="applicant.FamilyName  & validate">
+          </div>
+        </div>
+
+        <div class="form-group row" validation-errors.bind="emailErrors"
+        class.bind="emailErrors.length ? 'has-error' : ''">
+          <label class="col-md-3 col-form-label">Email</label>
+          <div class="col-md-9">
+            <input type="text" placeholder="email" class="form-control" value.bind="contact.email & validate">
+          </div>
+          <span class="help-block" repeat.for="errorInfo of emailErrors">
+            ${errorInfo.error.message}
+          </span>
+        </div>
+
+        <div class="form-group row" validation-errors.bind="phoneNumberErrors"
+        class.bind="lastNameErrors.length ? 'has-error' : ''">
+          <label class="col-md-3 col-form-label">Phone Number</label>
+          <div class="col-md-9">
+            <input type="text" placeholder="phone number" class="form-control" value.bind="contact.phoneNumber & validate">
+          </div>
+          <span class="help-block" repeat.for="errorInfo of phoneNumberErrors">
+            ${errorInfo.error.message}
+          </span>
+        </div>
+      </form>
+      <div>
+        <button class="btn btn-success float-right" click.delegate="validateMe()">Validate</button>
+        <button class="btn btn-success float-right" click.delegate="save()" disabled.bind="!canSave">Save</button>
       </div>
     </div>
-  </template>
-  
+  </div>
+</template>
