@@ -9,7 +9,9 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p>${message}</p>
+                    <p repeat.for="message of messages">
+                        ${message}
+                    </p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" click.trigger="controller.cancel()">Close</button>

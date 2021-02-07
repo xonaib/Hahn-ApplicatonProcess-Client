@@ -6,7 +6,7 @@ export class Prompt {
 
     controller: any;
     answer: any;
-    message: string;
+    messages: string[];
 
     constructor(controller: DialogController) {
         this.controller = controller;
@@ -15,8 +15,8 @@ export class Prompt {
         controller.settings.centerHorizontalOnly = true;
     }
 
-    activate(message) {
-        this.message = message;
+    activate(messages: string[]) {
+        this.messages = messages;
     }
 }
 

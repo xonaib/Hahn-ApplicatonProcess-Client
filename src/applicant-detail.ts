@@ -1,9 +1,13 @@
 import { inject, NewInstance } from 'aurelia-framework';
 import { EventAggregator } from 'aurelia-event-aggregator';
-import { ValidationRules, ValidationControllerFactory, ValidationController } from 'aurelia-validation';
+import {
+    ValidationRules, ValidationControllerFactory, ValidationController,
+    ControllerValidateResult, validateTrigger
+} from 'aurelia-validation';
 import { DialogService, DialogCloseResult } from 'aurelia-dialog';
-import { Prompt } from './prompt';
+import { Router } from 'aurelia-router';
 
+import { Prompt } from './prompt';
 import { WebAPI } from './resources/web-api';
 import { ContactUpdated, ContactViewed } from './messages';
 import { areEqual, isNullOrEmpty, isNull } from './resources/utility';
@@ -11,7 +15,8 @@ import { Applicant } from 'interfaces/applicant.interface';
 import { ApplicantsAPI } from './services/api.service';
 
 @inject(WebAPI, EventAggregator,
-    NewInstance.of(ValidationController), ApplicantsAPI, DialogService)
+    NewInstance.of(ValidationController), ApplicantsAPI,
+    DialogService, Router)
 export class ContactDetail {
     //public api: any;
     public routeConfig: any;
@@ -26,22 +31,24 @@ export class ContactDetail {
     static inject = [DialogService];
     constructor(private api: WebAPI, private ea: EventAggregator,
         private validationController: ValidationController,
-        private apiService: ApplicantsAPI, private dialogService: DialogService) {
+        private apiService: ApplicantsAPI, private dialogService: DialogService,
+        private router: Router) {
 
     }
 
     addFormValidation(): void {
         this.validationController.reset();
+        this.validationController.validateTrigger = validateTrigger.change;
 
         const emailPattern = /^[a-z][a-zA-Z0-9_.]*(\.[a-zA-Z][a-zA-Z0-9_.]*)?@[a-z][a-zA-Z-0-9_\-\.]*$/;
         const emailRegex = new RegExp(emailPattern);
         ValidationRules
-            .ensure('Name')
-            .required().withMessage('Name is required.')
-            .minLength(5).withMessage('Minimum Length should be 5 charcters.')
-            .ensure('FamilyName')
-            .required().withMessage('Family Name is required.')
-            .minLength(5).withMessage('Minimum Length should be 5 charcters.')
+            //.ensure('Name')
+            //.required().withMessage('Name is required.')
+            //.minLength(5).withMessage('Minimum Length should be 5 charcters.')
+            //.ensure('FamilyName')
+            //.required().withMessage('Family Name is required.')
+            //.minLength(5).withMessage('Minimum Length should be 5 charcters.')
             .ensure('Address')
             .required().withMessage('Address is required')
             .minLength(10).withMessage('Minimum Length should be 10 charcters.')
@@ -51,6 +58,10 @@ export class ContactDetail {
             .range(20, 60).withMessage('Age should be between 20 and 60')
             .on(this.applicant);
 
+    }
+
+    inputFieldBlur(fieldName: string): void {
+        console.log('@@ blur from ' + fieldName);
     }
 
     validateMe(): void {
@@ -66,25 +77,29 @@ export class ContactDetail {
 
     fetchPageData(id?: number): void {
 
+        // if id is provided, open in edit mode
+        // else, open in create mode
         if (id) {
             this.isEditMode = true;
             this.fetchApplicant(id);
         }
         else {
+            this.isEditMode = false;
             const applicant = this.getNewApplicant();
             this.prepareApplicantForm(applicant);
         }
     }
 
-
+    /** Prepare Form page, given a applicant object */
     prepareApplicantForm(applicant: Applicant): void {
         this.applicant = applicant;
 
+        // create a copy
         this.originalApplicant = this.cloneApplicant(applicant);
-
         this.addFormValidation();
     }
 
+    /** Simple clone method, used json.parse => because our object is not very complex */
     cloneApplicant(original: Applicant): Applicant {
         const copy = JSON.parse(JSON.stringify(original));
 
@@ -100,23 +115,10 @@ export class ContactDetail {
     fetchApplicant(id: number): void {
         this.apiService.getApplicant(id)
             .then((applicant: Applicant) => {
-
                 this.prepareApplicantForm(applicant);
             });
-
-        /*
-    return this.api.getContactDetails(id)
-        .then(contact => {
-            this.contact = contact;
-            this.routeConfig.navModel.setTitle(contact.firstName);
-            this.originalContact = JSON.parse(JSON.stringify(contact));
-            this.ea.publish(new ContactViewed(this.contact));
-        }); */
     }
 
-    createFormForApplicant(applicant: Applicant): void {
-        console.log(1);
-    }
 
     /** can reset if there is some data in form */
     get canReset(): boolean {
@@ -157,9 +159,8 @@ export class ContactDetail {
 
     resetForm(): void {
         //console.log('reset');
-        this.openDialog('Are you sure you want to reset form?')
+        this.openDialog(['Are you sure you want to reset form?'])
             .then((result: DialogCloseResult) => {
-                debugger;
                 if (!result.wasCancelled) {
                     // reset stuff
                     this.fetchPageData(this.applicantId);
@@ -169,6 +170,15 @@ export class ContactDetail {
 
     save(): void {
         console.log('save');
+
+        this.validationController.validate()
+            .then((validationResult: ControllerValidateResult) => {
+                if (validationResult.valid) {
+                    this.saveApplicant(this.applicant);
+                }
+            });
+
+
         /*this.api.saveContact(this.contact).then(contact => {
             this.contact = contact;
             this.routeConfig.navModel.setTitle(contact.firstName);
@@ -177,13 +187,91 @@ export class ContactDetail {
         });*/
     }
 
-    openDialog(msg: string): Promise<DialogCloseResult> {
+    saveApplicant(applicant: Applicant): void {
+        if (this.isEditMode) {
+            this._updateExistingApplicant(applicant);
+        }
+        else {
+            this._addNewApplicant(applicant);
+        }
+
+    }
+
+    /** Adding a new applicant, use POST */
+    private _addNewApplicant(applicant: Applicant): void {
+        this.apiService.saveApplicant(this.applicant)
+            .then(result => {
+                if (result.status == 400) {
+                    // there was some error on server
+
+                    if (result.errors) {
+                        // compose error message to display
+                        const errorMsgs = this._composeErrorMessage(result.errors);
+                        console.log('@@errors', errorMsgs);
+                        this._displayErrorMessages(errorMsgs);
+                    }
+                    return;
+                }
+                this.router.navigateToRoute('applicants');
+                console.log('@@ post request', result);
+            });
+    }
+
+    /** Updating an existing applicant, use PUT */
+    private _updateExistingApplicant(applicant: Applicant): void {
+        this.apiService.putApplicant(this.applicant.ID, this.applicant)
+            .then(result => {
+                if (result === true) {
+                    this.router.navigateToRoute('applicants');
+                    return;
+                }
+                // there was some error while saving
+                if (result.errors) {
+                    // compose error message to display
+                    const errorMsgs = this._composeErrorMessage(result.errors);
+                    console.log('@@errors', errorMsgs);
+                    this._displayErrorMessages(errorMsgs);
+                }
+                console.log('@@ post request', result);
+            });
+    }
+
+    private _composeErrorMessage(errors: any): string[] {
+        const messages: string[] = [];
+
+        const errorValues: string[][] = Object.values(errors);
+
+        errorValues.forEach((groupedErrors: string[]) => {
+            groupedErrors.forEach((error: string) => {
+                messages.push(error);
+            });
+        });
+
+        return messages;
+    }
+    private _displayErrorMessages(errorMessages: string[]): void {
+        this.openDialog(errorMessages)
+            .then((result: DialogCloseResult) => {
+                //if (!result.wasCancelled) {
+                    
+                //}
+            });
+    }
+
+    openDialog(msg: string[]): Promise<DialogCloseResult> {
         return this.dialogService.open({ viewModel: Prompt, model: msg, lock: false })
             .whenClosed(response => {
                 return response;
             });
 
         //return null;
+    }
+
+    delete(id: number): void {
+        this.apiService.deleteApplicant(0)
+            .then(data => {
+                debugger;
+            })
     }
 
     canDeactivate(): boolean {

@@ -11,8 +11,9 @@ export class App {
     config.options.pushState = true;
     config.options.root = '/';
 
+    // { route: '',              moduleId: PLATFORM.moduleName('no-selection'),   title: 'Select' },
     config.map([
-      { route: '',              moduleId: PLATFORM.moduleName('no-selection'),   title: 'Select' },
+      { route: '',              moduleId: PLATFORM.moduleName('applicant-list'),   name: 'applicants' },
       { route: 'applicant/:id?',  moduleId: PLATFORM.moduleName('applicant-detail'), name:'applicant-edit' }
     ]);
 

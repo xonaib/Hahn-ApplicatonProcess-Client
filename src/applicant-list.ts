@@ -45,6 +45,8 @@ export class ApplicantList {
         this.selectedId = contact.id;
         return true;
     }
+
+   
 }
 
 

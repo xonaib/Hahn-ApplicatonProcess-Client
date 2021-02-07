@@ -1,113 +1,128 @@
 <template>
-  <div class="card">
-    <div class="card-header text-white bg-primary">
-      Profile
+  <div class="row ">
+    <div class="col-sm-12">
+      <a class="btn btn-primary mb-2" route-href="route: applicants">Back to List</a>
     </div>
-    <div class="card-body">
-      <form role="form" if.bind="applicant != null">
+  </div>
+  <h2 click.delegate="delete(applicant.ID)">Delete</h2>
 
-        <div class="form-group row">
-          <label class="col-md-3 col-form-label">Errors</label>
-          <ul if.bind="validationController.errors">
-            <li repeat.for="error of validationController.errors">
-              ${error.message}
-            </li>
-          </ul>
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="card">
+        <div class="card-header text-white bg-primary">
+          Profile
         </div>
+        <div class="card-body">
+          <form role="form" if.bind="applicant != null">
+
+            <div class="form-group row">
+              <label class="col-md-3 col-form-label">Errors</label>
+              <ul if.bind="validationController.errors">
+                <li repeat.for="error of validationController.errors">
+                  ${error.message}
+                </li>
+              </ul>
+            </div>
 
 
-        <!-- name -->
-        <div class="form-group row" validation-errors.bind="NameErrors"
-          class.bind="NameErrors.length ? 'has-error' : ''">
-          <label class="col-md-3 col-form-label">First Name</label>
-          <div class="col-md-9">
-            <input type="text" placeholder="first name" class.bind="NameErrors.length ? 'is-invalid' : ''"
-              class="form-control" value.bind="applicant.Name & validate">
+            <!-- name -->
+            <div class="form-group row" validation-errors.bind="NameErrors"
+              class.bind="NameErrors.length ? 'has-error' : ''">
+              <label class="col-md-3 col-form-label">First Name</label>
+              <div class="col-md-9">
+                <input type="text" placeholder="first name" autocomplete="off"
+                  class.bind="NameErrors.length ? 'is-invalid' : ''" class="form-control"
+                  blur.trigger="inputFieldBlur('Name')"
+                  value.bind="applicant.Name & validate">
 
-            <span class="help-block" repeat.for="errorInfo of NameErrors">
-              ${errorInfo.error.message}
-            </span>
+                <span class="help-block" repeat.for="errorInfo of NameErrors">
+                  ${errorInfo.error.message}
+                </span>
+              </div>
+            </div>
+
+            <!-- familyName -->
+            <div class="form-group row" validation-errors.bind="FamilyNameErrors"
+              class.bind="FamilyNameErrors.length ? 'has-error' : ''">
+              <label class="col-md-3 col-form-label">Family Name</label>
+              <div class="col-md-9">
+                <input type="text" placeholder="family name" class.bind="FamilyNameErrors.length ? 'is-invalid' : ''"
+                  class="form-control" value.bind="applicant.FamilyName & validate">
+
+                <span class="help-block" repeat.for="errorInfo of FamilyNameErrors">
+                  ${errorInfo.error.message}
+                </span>
+              </div>
+            </div>
+
+            <!-- Address -->
+            <div class="form-group row" validation-errors.bind="AddressErrors"
+              class.bind="AddressErrors.length ? 'has-error' : ''">
+              <label class="col-md-3 col-form-label">Address</label>
+              <div class="col-md-9">
+                <input type="text" placeholder="address" class.bind="AddressErrors.length ? 'is-invalid' : ''"
+                  class="form-control" value.bind="applicant.Address & validate">
+
+                <span class="help-block" repeat.for="errorInfo of AddressErrors">
+                  ${errorInfo.error.message}
+                </span>
+              </div>
+            </div>
+
+            <!-- CountryOfOrigin -->
+            <div class="form-group row" validation-errors.bind="CountryOfOriginErrors"
+              class.bind="CountryOfOriginErrors.length ? 'has-error' : ''">
+              <label class="col-md-3 col-form-label">Country</label>
+              <div class="col-md-9">
+                <input type="text" placeholder="country" class.bind="CountryOfOriginErrors.length ? 'is-invalid' : ''"
+                  class="form-control" value.bind="applicant.CountryOfOrigin & validate">
+
+                <span class="help-block" repeat.for="errorInfo of CountryOfOriginErrors">
+                  ${errorInfo.error.message}
+                </span>
+              </div>
+            </div>
+
+            <!-- Email -->
+            <div class="form-group row" validation-errors.bind="EmailAdressErrors"
+              class.bind="EmailAdressErrors.length ? 'has-error' : ''">
+              <label class="col-md-3 col-form-label">Email</label>
+              <div class="col-md-9">
+                <input type="text" placeholder="email" class.bind="EmailAdressErrors.length ? 'is-invalid' : ''"
+                  class="form-control" value.bind="applicant.EmailAdress & validate">
+
+                <span class="help-block" repeat.for="errorInfo of EmailAdressErrors">
+                  ${errorInfo.error.message}
+                </span>
+              </div>
+            </div>
+
+            <!-- Age -->
+            <div class="form-group row" validation-errors.bind="AgeErrors"
+              class.bind="AgeErrors.length ? 'has-error' : ''">
+              <label class="col-md-3 col-form-label">Age</label>
+              <div class="col-md-9">
+                <input type="text" placeholder="age" class.bind="AgeErrors.length ? 'is-invalid' : ''"
+                  class="form-control" value.bind="applicant.Age & validate">
+
+                <span class="help-block" repeat.for="errorInfo of AgeErrors">
+                  ${errorInfo.error.message}
+                </span>
+              </div>
+            </div>
+          </form>
+
+          <!-- Hired -->
+
+          <!-- buttons -->
+          <div>
+            <button class="btn btn-success mr-2" click.delegate="resetForm()"
+              disabled.bind="!formHasAnyData">Reset</button>
+            <button class="btn btn-success " click.delegate="save()" disabled.bind="!canSave">Save</button>
           </div>
         </div>
-
-        <!-- familyName -->
-        <div class="form-group row" validation-errors.bind="FamilyNameErrors"
-          class.bind="FamilyNameErrors.length ? 'has-error' : ''">
-          <label class="col-md-3 col-form-label">Family Name</label>
-          <div class="col-md-9">
-            <input type="text" placeholder="family name" class.bind="FamilyNameErrors.length ? 'is-invalid' : ''"
-              class="form-control" value.bind="applicant.FamilyName & validate">
-
-            <span class="help-block" repeat.for="errorInfo of FamilyNameErrors">
-              ${errorInfo.error.message}
-            </span>
-          </div>
-        </div>
-
-        <!-- Address -->
-        <div class="form-group row" validation-errors.bind="AddressErrors"
-          class.bind="AddressErrors.length ? 'has-error' : ''">
-          <label class="col-md-3 col-form-label">Address</label>
-          <div class="col-md-9">
-            <input type="text" placeholder="address" class.bind="AddressErrors.length ? 'is-invalid' : ''"
-              class="form-control" value.bind="applicant.Address & validate">
-
-            <span class="help-block" repeat.for="errorInfo of AddressErrors">
-              ${errorInfo.error.message}
-            </span>
-          </div>
-        </div>
-
-        <!-- CountryOfOrigin -->
-        <div class="form-group row" validation-errors.bind="CountryOfOriginErrors"
-          class.bind="CountryOfOriginErrors.length ? 'has-error' : ''">
-          <label class="col-md-3 col-form-label">Country</label>
-          <div class="col-md-9">
-            <input type="text" placeholder="country" class.bind="CountryOfOriginErrors.length ? 'is-invalid' : ''"
-              class="form-control" value.bind="applicant.CountryOfOrigin & validate">
-
-            <span class="help-block" repeat.for="errorInfo of CountryOfOriginErrors">
-              ${errorInfo.error.message}
-            </span>
-          </div>
-        </div>
-
-        <!-- Email -->
-        <div class="form-group row" validation-errors.bind="EmailAdressErrors"
-          class.bind="EmailAdressErrors.length ? 'has-error' : ''">
-          <label class="col-md-3 col-form-label">Email</label>
-          <div class="col-md-9">
-            <input type="text" placeholder="email" class.bind="EmailAdressErrors.length ? 'is-invalid' : ''"
-              class="form-control" value.bind="applicant.EmailAdress & validate">
-
-            <span class="help-block" repeat.for="errorInfo of EmailAdressErrors">
-              ${errorInfo.error.message}
-            </span>
-          </div>
-        </div>
-
-        <!-- Age -->
-        <div class="form-group row" validation-errors.bind="AgeErrors" class.bind="AgeErrors.length ? 'has-error' : ''">
-          <label class="col-md-3 col-form-label">Phone Number</label>
-          <div class="col-md-9">
-            <input type="text" placeholder="phone number" class.bind="AgeErrors.length ? 'is-invalid' : ''"
-              class="form-control" value.bind="applicant.Age & validate">
-
-            <span class="help-block" repeat.for="errorInfo of AgeErrors">
-              ${errorInfo.error.message}
-            </span>
-          </div>
-        </div>
-      </form>
-
-      <!-- Hired -->
-
-      <!-- buttons -->
-      <div>
-        <button class="btn btn-success mr-2" click.delegate="resetForm()"
-          disabled.bind="!formHasAnyData">Reset</button>
-        <button class="btn btn-success " click.delegate="save()" disabled.bind="!canSave">Save</button>
       </div>
     </div>
   </div>
+
 </template>
