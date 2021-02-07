@@ -180,13 +180,6 @@ export class ContactDetail {
     openDialog(msg: string): Promise<DialogCloseResult> {
         return this.dialogService.open({ viewModel: Prompt, model: msg, lock: false })
             .whenClosed(response => {
-
-                /*if (!response.wasCancelled) {
-                    console.log('good');
-                } else {
-                    console.log('bad');
-                }
-                console.log(response.output);*/
                 return response;
             });
 

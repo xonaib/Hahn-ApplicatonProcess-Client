@@ -15,6 +15,7 @@
     "aurelia-i18n": "^3.1.4",
     "aurelia-validation": "^2.0.0-rc2",
     "bootstrap": "^4.6.0",
+    "i18next": "^19.8.7",
     "jquery": "^3.5.1",
     "popper.js": "^1.16.1"
   },
