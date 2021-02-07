@@ -11,6 +11,7 @@ import { Applicant } from './interfaces/applicant.interface';
 export class ApplicantList {
     public api: any;
     public contacts: any[];
+    public applicants: Applicant[];
     public selectedId: number;
     public ea: EventAggregator;
     public applicantsAPI: ApplicantsAPI;
@@ -35,6 +36,7 @@ export class ApplicantList {
 
         this.applicantsAPI.getApplicants()
             .then((applicants: Applicant[]) => {
+                this.applicants = applicants;
                 console.log('applicants from server', applicants);
             });
     }

@@ -104,7 +104,8 @@
 
       <!-- buttons -->
       <div>
-        <button class="btn btn-success mr-2" click.delegate="validateMe()">Reset</button>
+        <button class="btn btn-success mr-2" click.delegate="resetForm()"
+          disabled.bind="!formHasAnyData">Reset</button>
         <button class="btn btn-success " click.delegate="save()" disabled.bind="!canSave">Save</button>
       </div>
     </div>

@@ -1,48 +1,37 @@
 import { inject, NewInstance } from 'aurelia-framework';
 import { EventAggregator } from 'aurelia-event-aggregator';
 import { ValidationRules, ValidationControllerFactory, ValidationController } from 'aurelia-validation';
+import { DialogService, DialogCloseResult } from 'aurelia-dialog';
+import { Prompt } from './prompt';
 
 import { WebAPI } from './resources/web-api';
 import { ContactUpdated, ContactViewed } from './messages';
-import { areEqual, isNullOrEmpty } from './resources/utility';
+import { areEqual, isNullOrEmpty, isNull } from './resources/utility';
 import { Applicant } from 'interfaces/applicant.interface';
+import { ApplicantsAPI } from './services/api.service';
 
-@inject(WebAPI, EventAggregator, ValidationControllerFactory, NewInstance.of(ValidationController))
+@inject(WebAPI, EventAggregator,
+    NewInstance.of(ValidationController), ApplicantsAPI, DialogService)
 export class ContactDetail {
-    public api: any;
+    //public api: any;
     public routeConfig: any;
-    public contact: any;
-    public originalContact: any;
-    public ea: EventAggregator;
+    //public contact: any;
+    public originalApplicant: Applicant;
+    //public ea: EventAggregator;
+    public applicantId: number;
     public isEditMode = false;
 
     public applicant: Applicant = new Applicant();
     //public validationController: ValidationController;
+    static inject = [DialogService];
+    constructor(private api: WebAPI, private ea: EventAggregator,
+        private validationController: ValidationController,
+        private apiService: ApplicantsAPI, private dialogService: DialogService) {
 
-    constructor(api: WebAPI, ea: EventAggregator,
-        validationControllerFactory: ValidationControllerFactory,
-        private validationController: ValidationController) {
+    }
 
-        this.contact = {
-            id: 0,
-            firstName: '',
-            lastName: '',
-            email: '',
-            phoneNumber: 0,
-        }
-
-        this.api = api;
-        this.ea = ea;
-        //this.validationController = validationControllerFactory.createForCurrentScope();
-        this.getNewApplicant();
-
-        //ValidationRules.ensureObject<Applicant>()
-        //    .satisfies(.)
-
-        ValidationRules
-            .ensure('email').required().withMessage('Required errror')
-            .ensure('phoneNumber').minLength(3).withMessage('Length error')
-            .on(this.contact);
+    addFormValidation(): void {
+        this.validationController.reset();
 
         const emailPattern = /^[a-z][a-zA-Z0-9_.]*(\.[a-zA-Z][a-zA-Z0-9_.]*)?@[a-z][a-zA-Z-0-9_\-\.]*$/;
         const emailRegex = new RegExp(emailPattern);
@@ -62,16 +51,8 @@ export class ContactDetail {
             .range(20, 60).withMessage('Age should be between 20 and 60')
             .on(this.applicant);
 
-        /*ValidationRules.ensureObject()
-            .satisfies(d => d.Name.length > 3)
-            .on(this.applicant);*/
-        /*
-        ValidationRules.ensureObject()
-            .satisfies(obj => obj.Name.length > 3)
-            .satisfies(obj => obj.FamilyName.length > 10)
-            .on(Applicant);
-        */
     }
+
     validateMe(): void {
         this.validationController.validate();
     }
@@ -79,71 +60,142 @@ export class ContactDetail {
     activate(params, routeConfig): void {
         this.routeConfig = routeConfig;
 
+        this.applicantId = params.id || 0;
+        this.fetchPageData(params.id);
+    }
 
-        if (params.id) {
+    fetchPageData(id?: number): void {
+
+        if (id) {
             this.isEditMode = true;
-            this.getApplicant(params.id);
+            this.fetchApplicant(id);
         }
         else {
-            console.log('@@ no param for id');
+            const applicant = this.getNewApplicant();
+            this.prepareApplicantForm(applicant);
         }
     }
 
-    getNewApplicant(): void {
-        const applicant = new Applicant();
-        applicant.Name = '';
-        applicant.FamilyName = '';
-        applicant.EmailAdress = '';
-        applicant.Age = 0;
-        applicant.CountryOfOrigin = '';
-        /*const applicant2: Applicant = {
-            Name: '',
-            FamilyName: '',
-            EmailAdress: '',
-            Address: '',
-            Age: 0,
-            CountryOfOrigin: '',
-        };*/
 
+    prepareApplicantForm(applicant: Applicant): void {
         this.applicant = applicant;
+
+        this.originalApplicant = this.cloneApplicant(applicant);
+
+        this.addFormValidation();
     }
 
-    getApplicant(id: number): void {
-        return this.api.getContactDetails(id)
-            .then(contact => {
-                this.contact = contact;
-                this.routeConfig.navModel.setTitle(contact.firstName);
-                this.originalContact = JSON.parse(JSON.stringify(contact));
-                this.ea.publish(new ContactViewed(this.contact));
+    cloneApplicant(original: Applicant): Applicant {
+        const copy = JSON.parse(JSON.stringify(original));
+
+        return copy;
+    }
+
+    getNewApplicant(): Applicant {
+        const applicant = new Applicant();
+
+        return applicant;
+    }
+
+    fetchApplicant(id: number): void {
+        this.apiService.getApplicant(id)
+            .then((applicant: Applicant) => {
+
+                this.prepareApplicantForm(applicant);
             });
+
+        /*
+    return this.api.getContactDetails(id)
+        .then(contact => {
+            this.contact = contact;
+            this.routeConfig.navModel.setTitle(contact.firstName);
+            this.originalContact = JSON.parse(JSON.stringify(contact));
+            this.ea.publish(new ContactViewed(this.contact));
+        }); */
     }
 
     createFormForApplicant(applicant: Applicant): void {
         console.log(1);
     }
 
+    /** can reset if there is some data in form */
     get canReset(): boolean {
-        return (!isNullOrEmpty(this.applicant.Name) || !isNullOrEmpty(this.applicant.FamilyName) 
+        return (!isNullOrEmpty(this.applicant.Name) || !isNullOrEmpty(this.applicant.FamilyName)
             || !isNullOrEmpty(this.applicant.Address) || !isNullOrEmpty(this.applicant.CountryOfOrigin));
     }
 
+    /** CanSave: if data in form is valid */
     get canSave(): boolean {
-        //return true;
-        return (!isNullOrEmpty(this.applicant.Name) && !isNullOrEmpty(this.applicant.FamilyName) 
-            && !isNullOrEmpty(this.applicant.Address));
+        return ((isNull(this.validationController.errors) || this.validationController.errors.length == 0))
+            && this.formHasCompleteData;
+
+        //return (!isNullOrEmpty(this.applicant.Name) && !isNullOrEmpty(this.applicant.FamilyName) 
+        //    && !isNullOrEmpty(this.applicant.Address));
+    }
+
+    /** if any form field has data */
+    get formHasAnyData(): boolean {
+        const formHasData = !isNullOrEmpty(this.applicant.Name)
+            || !isNullOrEmpty(this.applicant.FamilyName)
+            || !isNullOrEmpty(this.applicant.CountryOfOrigin)
+            || !isNullOrEmpty(this.applicant.Address)
+            || !isNullOrEmpty(this.applicant.EmailAdress);
+
+        return formHasData;
+    }
+
+    /** Return if all the fields have data */
+    get formHasCompleteData(): boolean {
+        const formHasData = !isNullOrEmpty(this.applicant.Name)
+            && !isNullOrEmpty(this.applicant.FamilyName)
+            && !isNullOrEmpty(this.applicant.CountryOfOrigin)
+            && !isNullOrEmpty(this.applicant.Address)
+            && !isNullOrEmpty(this.applicant.EmailAdress);
+
+        return formHasData
+    }
+
+    resetForm(): void {
+        //console.log('reset');
+        this.openDialog('Are you sure you want to reset form?')
+            .then((result: DialogCloseResult) => {
+                debugger;
+                if (!result.wasCancelled) {
+                    // reset stuff
+                    this.fetchPageData(this.applicantId);
+                }
+            });
     }
 
     save(): void {
-        this.api.saveContact(this.contact).then(contact => {
+        console.log('save');
+        /*this.api.saveContact(this.contact).then(contact => {
             this.contact = contact;
             this.routeConfig.navModel.setTitle(contact.firstName);
             this.originalContact = JSON.parse(JSON.stringify(contact));
             this.ea.publish(new ContactUpdated(this.contact));
-        });
+        });*/
+    }
+
+    openDialog(msg: string): Promise<DialogCloseResult> {
+        return this.dialogService.open({ viewModel: Prompt, model: msg, lock: false })
+            .whenClosed(response => {
+
+                /*if (!response.wasCancelled) {
+                    console.log('good');
+                } else {
+                    console.log('bad');
+                }
+                console.log(response.output);*/
+                return response;
+            });
+
+        //return null;
     }
 
     canDeactivate(): boolean {
-        if (!areEqual(this.originalContact, this.contact)) {
+        //debugger;
+        /*if (!areEqual(this.originalContact, this.contact)) {
             const result = confirm('You have unsaved changes. Are you sure you wish to leave?');
 
             if (!result) {
@@ -151,7 +203,7 @@ export class ContactDetail {
             }
 
             return result;
-        }
+        } */
 
         return true;
     }

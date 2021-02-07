@@ -10,7 +10,9 @@
   "dependencies": {
     "aurelia-animator-css": "^1.0.4",
     "aurelia-bootstrapper": "^2.3.3",
+    "aurelia-dialog": "^2.0.0",
     "aurelia-fetch-client": "^1.8.2",
+    "aurelia-i18n": "^3.1.4",
     "aurelia-validation": "^2.0.0-rc2",
     "bootstrap": "^4.6.0",
     "jquery": "^3.5.1",
@@ -65,7 +67,7 @@
     "build:dev": "webpack --extractCss",
     "analyze": "webpack --env.production --analyze",
     "test": "au test",
-    "run":"au start --open"
+    "run": "au start --open"
   },
   "engines": {
     "node": ">=10.12.0"

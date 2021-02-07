@@ -50,3 +50,22 @@ li.list-group-item > a {
 li.list-group-item.active > a {
   color: white;
 }
+
+ux-dialog {
+  border: 5px solid #fff700;
+}
+ux-dialog-overlay.active {
+  background-color: black;
+  opacity: .5;
+}
+
+
+
+ux-dialog-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+ux-dialog-container > div {
+  margin: auto !important;
+}

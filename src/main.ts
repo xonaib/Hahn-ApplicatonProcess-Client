@@ -6,7 +6,10 @@ export function configure(aurelia: Aurelia): void {
   aurelia.use
     .standardConfiguration()
     .feature(PLATFORM.moduleName('resources/index'))
-    .plugin(PLATFORM.moduleName('aurelia-validation'));
+    .plugin(PLATFORM.moduleName('aurelia-validation'))
+    .plugin(PLATFORM.moduleName('aurelia-dialog'), config => {
+      config.settings.startingZIndex = 2000;
+    });
 
   aurelia.use.developmentLogging(environment.debug ? 'debug' : 'warn');
 

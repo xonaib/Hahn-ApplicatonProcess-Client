@@ -1,4 +1,19 @@
 <template>
+    Parent- ${parent.selectedId}
+    <div class="contact-list">
+        <div class="list-group">
+            <a repeat.for="applicant of applicants"
+                class="list-group-item list-group-item-action ${applicant.ID === $parent.selectedId ? 'active' : ''}"
+                route-href="route: applicant-edit; params.bind: {id: applicant.ID}"
+                click.delegate="$parent.select(applicant)">
+
+                <strong>${applicant.Name} ${applicant.FamilyName}</strong><br>
+                <small>${applicant.EmailAdress}</small>
+            </a>
+        </div>
+    </div>
+
+    <!--
     <div class="contact-list">
         <div class="list-group">
             <a repeat.for="contact of contacts"
@@ -11,4 +26,5 @@
             </a>
         </div>
     </div>
+-->
 </template>
