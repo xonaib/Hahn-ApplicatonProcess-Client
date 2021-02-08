@@ -11,7 +11,8 @@ import { Prompt } from './prompt';
 import { WebAPI } from './resources/web-api';
 import { ContactUpdated, ContactViewed } from './messages';
 import { areEqual, isNullOrEmpty, isNull } from './resources/utility';
-import { Applicant } from 'interfaces/applicant.interface';
+import { Applicant } from './interfaces/applicant.interface';
+import { ModalOptions } from './interfaces/modal.interface';
 import { ApplicantsAPI } from './services/api.service';
 
 @inject(WebAPI, EventAggregator,
@@ -158,8 +159,12 @@ export class ContactDetail {
     }
 
     resetForm(): void {
-        //console.log('reset');
-        this.openDialog(['Are you sure you want to reset form?'])
+        const modalOptions = new ModalOptions();
+        modalOptions.Title = 'Reset';
+        modalOptions.ButtonOneText = 'Yes';
+        modalOptions.ModalBody = ['Are you sure you want to reset form?'];
+
+        this.openDialog(modalOptions)
             .then((result: DialogCloseResult) => {
                 if (!result.wasCancelled) {
                     // reset stuff
@@ -250,16 +255,20 @@ export class ContactDetail {
         return messages;
     }
     private _displayErrorMessages(errorMessages: string[]): void {
-        this.openDialog(errorMessages)
+        const modalOptions = new ModalOptions();
+        modalOptions.Title = 'Error from server';
+        modalOptions.ModalBody = errorMessages;
+
+        this.openDialog(modalOptions)
             .then((result: DialogCloseResult) => {
                 //if (!result.wasCancelled) {
-                    
+
                 //}
             });
     }
 
-    openDialog(msg: string[]): Promise<DialogCloseResult> {
-        return this.dialogService.open({ viewModel: Prompt, model: msg, lock: false })
+    openDialog(options: ModalOptions): Promise<DialogCloseResult> {
+        return this.dialogService.open({ viewModel: Prompt, model: options, lock: false })
             .whenClosed(response => {
                 return response;
             });
