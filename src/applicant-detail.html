@@ -1,7 +1,7 @@
 <template>
   <div class="row ">
     <div class="col-sm-12">
-      <a class="btn btn-primary mb-2" route-href="route: applicants">Back to List</a>
+      <a class="btn btn-primary mb-2" route-href="route: applicants">${ 'back_list' | t }</a>
     </div>
   </div>
 
@@ -9,7 +9,7 @@
     <div class="col-sm-12">
       <div class="card">
         <div class="card-header text-white bg-primary">
-          Profile
+          ${ 'profile' | t }
         </div>
         <div class="card-body">
           <form role="form" if.bind="applicant != null">
@@ -28,7 +28,7 @@
             <div class="form-group row">
               <div class="col-sm-12">
                 <button class="btn btn-danger mr-2 pull-right" click.delegate="delete(applicant.ID)"
-                  if.bind="isEditMode">Delete</button>
+                  if.bind="isEditMode">${ 'delete' | t }</button>
               </div>
 
             </div>
@@ -36,7 +36,7 @@
             <!-- name -->
             <div class="form-group row" validation-errors.bind="NameErrors"
               class.bind="NameErrors.length ? 'has-error' : ''">
-              <label class="col-md-3 col-form-label">First Name</label>
+              <label class="col-md-3 col-form-label">${ 'first_name' | t }</label>
               <div class="col-md-9">
                 <input type="text" placeholder="first name" autocomplete="off"
                   class.bind="NameErrors.length ? 'is-invalid' : ''" class="form-control"
@@ -51,7 +51,7 @@
             <!-- familyName -->
             <div class="form-group row" validation-errors.bind="FamilyNameErrors"
               class.bind="FamilyNameErrors.length ? 'has-error' : ''">
-              <label class="col-md-3 col-form-label">Family Name</label>
+              <label class="col-md-3 col-form-label">${ 'family_name' | t }</label>
               <div class="col-md-9">
                 <input type="text" placeholder="family name" class.bind="FamilyNameErrors.length ? 'is-invalid' : ''"
                   class="form-control" value.bind="applicant.FamilyName & validate">
@@ -65,7 +65,7 @@
             <!-- Address -->
             <div class="form-group row" validation-errors.bind="AddressErrors"
               class.bind="AddressErrors.length ? 'has-error' : ''">
-              <label class="col-md-3 col-form-label">Address</label>
+              <label class="col-md-3 col-form-label">${ 'address' | t }</label>
               <div class="col-md-9">
                 <input type="text" placeholder="address" class.bind="AddressErrors.length ? 'is-invalid' : ''"
                   class="form-control" value.bind="applicant.Address & validate">
@@ -79,7 +79,7 @@
             <!-- CountryOfOrigin -->
             <div class="form-group row" validation-errors.bind="CountryOfOriginErrors"
               class.bind="CountryOfOriginErrors.length ? 'has-error' : ''">
-              <label class="col-md-3 col-form-label">Country</label>
+              <label class="col-md-3 col-form-label">${ 'country' | t }</label>
               <div class="col-md-9">
                 <input type="text" placeholder="country" class.bind="CountryOfOriginErrors.length ? 'is-invalid' : ''"
                   class="form-control" value.bind="applicant.CountryOfOrigin & validate">
@@ -93,7 +93,7 @@
             <!-- Email -->
             <div class="form-group row" validation-errors.bind="EmailAdressErrors"
               class.bind="EmailAdressErrors.length ? 'has-error' : ''">
-              <label class="col-md-3 col-form-label">Email</label>
+              <label class="col-md-3 col-form-label">${ 'email' | t }</label>
               <div class="col-md-9">
                 <input type="text" placeholder="email" class.bind="EmailAdressErrors.length ? 'is-invalid' : ''"
                   class="form-control" value.bind="applicant.EmailAdress & validate">
@@ -107,7 +107,7 @@
             <!-- Age -->
             <div class="form-group row" validation-errors.bind="AgeErrors"
               class.bind="AgeErrors.length ? 'has-error' : ''">
-              <label class="col-md-3 col-form-label">Age</label>
+              <label class="col-md-3 col-form-label">${ 'age' | t }</label>
               <div class="col-md-9">
                 <input type="text" placeholder="age" class.bind="AgeErrors.length ? 'is-invalid' : ''"
                   class="form-control" value.bind="applicant.Age & validate">
@@ -120,13 +120,11 @@
 
             <!-- Hired -->
             <div class="form-group row">
-              <label class="col-md-3 col-form-label">Hired</label>
+              <label class="col-md-3 col-form-label">${ 'hired' | t }</label>
               <div class="col-md-9">
                 <div class="form-check">
                   <input type="checkbox" class="form-check-input" checked.bind="applicant.Hired" />
                 </div>
-
-
               </div>
             </div>
 
@@ -135,9 +133,10 @@
 
           <!-- buttons -->
           <div>
-            <button class="btn btn-success mr-2" click.delegate="resetForm()"
-              disabled.bind="!formHasAnyData">Reset</button>
-            <button class="btn btn-success " click.delegate="save()" disabled.bind="!canSave">Save</button>
+            <button class="btn btn-success mr-2" click.delegate="resetForm()" disabled.bind="!formHasAnyData">${
+              'reset' | t }</button>
+            <button class="btn btn-success " click.delegate="save()" disabled.bind="!canSave">${ 'save' | t
+              }</button>
           </div>
         </div>
       </div>

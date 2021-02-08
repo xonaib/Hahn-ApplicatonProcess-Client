@@ -6,6 +6,7 @@ import {
 } from 'aurelia-validation';
 import { DialogService, DialogCloseResult } from 'aurelia-dialog';
 import { Router } from 'aurelia-router';
+import { I18N } from 'aurelia-i18n';
 
 import { Prompt } from './prompt';
 import { WebAPI } from './resources/web-api';
@@ -17,7 +18,7 @@ import { ApplicantsAPI } from './services/api.service';
 
 @inject(WebAPI, EventAggregator,
     NewInstance.of(ValidationController), ApplicantsAPI,
-    DialogService, Router)
+    DialogService, Router, I18N)
 export class ContactDetail {
     //public api: any;
     public routeConfig: any;
@@ -33,7 +34,7 @@ export class ContactDetail {
     constructor(private api: WebAPI, private ea: EventAggregator,
         private validationController: ValidationController,
         private apiService: ApplicantsAPI, private dialogService: DialogService,
-        private router: Router) {
+        private router: Router, private i18n: I18N) {
 
     }
 
@@ -44,19 +45,22 @@ export class ContactDetail {
         const emailPattern = /^[a-z][a-zA-Z0-9_.]*(\.[a-zA-Z][a-zA-Z0-9_.]*)?@[a-z][a-zA-Z-0-9_\-\.]*$/;
         const emailRegex = new RegExp(emailPattern);
         ValidationRules
-            //.ensure('Name')
-            //.required().withMessage('Name is required.')
-            //.minLength(5).withMessage('Minimum Length should be 5 charcters.')
-            //.ensure('FamilyName')
-            //.required().withMessage('Family Name is required.')
-            //.minLength(5).withMessage('Minimum Length should be 5 charcters.')
+            .ensure('Name')
+            .required().withMessage(this.i18n.tr('messages.required', { 'field_name': 'Name' }))
+            .minLength(5).withMessage(this.i18n.tr('messages.min_length', { 'count': 5 }))
+            .ensure('FamilyName')
+            .required().withMessage(this.i18n.tr('messages.required', { 'field_name': 'Family Name' }))
+            .minLength(5).withMessage(this.i18n.tr('messages.min_length', { 'count': 5 }))
             .ensure('Address')
-            .required().withMessage('Address is required')
-            .minLength(10).withMessage('Minimum Length should be 10 charcters.')
+            .required().withMessage(this.i18n.tr('messages.required', { 'field_name': 'Address' }))
+            .minLength(10).withMessage(this.i18n.tr('messages.min_length', { 'count': 10 }))
             .ensure('EmailAdress')
-            .matches(emailRegex).withMessage('Email should be valid.')
+            .required().withMessage(this.i18n.tr('messages.required', { 'field_name': 'Email' }))
+            .matches(emailRegex).withMessage(this.i18n.tr('messages.valid', { 'field_name': 'Email' }))
             .ensure('Age')
-            .range(20, 60).withMessage('Age should be between 20 and 60')
+            //.required().withMessage(this.i18n.tr('messages.required', { 'field_name': 'Age' }))
+            .range(20, 60).withMessage(this.i18n.tr('messages.range',
+                { 'field_name': 'Age', 'min_count': 20, 'max_count': 60 }))
             .on(this.applicant);
 
     }
@@ -162,9 +166,9 @@ export class ContactDetail {
 
     resetForm(): void {
         const modalOptions = new ModalOptions();
-        modalOptions.Title = 'Reset';
-        modalOptions.ButtonOneText = 'Yes';
-        modalOptions.ModalBody = ['Are you sure you want to reset form?'];
+        modalOptions.Title = this.i18n.tr('reset');
+        modalOptions.ButtonOneText = this.i18n.tr('yes');
+        modalOptions.ModalBody = [this.i18n.tr('confirmation_reset')]; 
 
         this.openDialog(modalOptions)
             .then((result: DialogCloseResult) => {
@@ -214,13 +218,12 @@ export class ContactDetail {
                     if (result.errors) {
                         // compose error message to display
                         const errorMsgs = this._composeErrorMessage(result.errors);
-                        console.log('@@errors', errorMsgs);
+                       
                         this._displayErrorMessages(errorMsgs);
                     }
                     return;
                 }
                 this.router.navigateToRoute('applicants');
-                console.log('@@ post request', result);
             });
     }
 
@@ -236,10 +239,10 @@ export class ContactDetail {
                 if (result.errors) {
                     // compose error message to display
                     const errorMsgs = this._composeErrorMessage(result.errors);
-                    console.log('@@errors', errorMsgs);
+                   
                     this._displayErrorMessages(errorMsgs);
                 }
-                console.log('@@ post request', result);
+                
             });
     }
 
@@ -258,7 +261,7 @@ export class ContactDetail {
     }
     private _displayErrorMessages(errorMessages: string[]): void {
         const modalOptions = new ModalOptions();
-        modalOptions.Title = 'Error from server';
+        modalOptions.Title = this.i18n.tr('error_api'); 
         modalOptions.ModalBody = errorMessages;
 
         this.openDialog(modalOptions)
@@ -280,10 +283,10 @@ export class ContactDetail {
 
     delete(id: number): void {
         const modalOptions = new ModalOptions();
-        modalOptions.Title = 'Delete applicant';
-        modalOptions.ModalBody = ['Are you sure you want to delete this user?'];
-        modalOptions.ButtonOneText = 'Yes';
-        modalOptions.ButtonTwoText = 'No';
+        modalOptions.Title = this.i18n.tr('delete_applicant');
+        modalOptions.ModalBody = [this.i18n.tr('confirmation_delete')]; 
+        modalOptions.ButtonOneText = this.i18n.tr('yes');
+        modalOptions.ButtonTwoText = this.i18n.tr('no');
 
         this.openDialog(modalOptions)
             .then((result: DialogCloseResult) => {
@@ -300,9 +303,9 @@ export class ContactDetail {
             .then((data: boolean) => {
                 if (!data) {
                     const modalOptions = new ModalOptions();
-                    modalOptions.Title = 'Delete applicant';
-                    modalOptions.ModalBody = ['There was some error deleting this applicant. Please try again.'];
-                    modalOptions.ButtonOneText = 'Ok';
+                    modalOptions.Title = this.i18n.tr('confirmation_delete');
+                    modalOptions.ModalBody = [this.i18n.tr('error_deletion_api')]; 
+                    modalOptions.ButtonOneText = this.i18n.tr('ok');
 
                     this.openDialog(modalOptions)
                 }

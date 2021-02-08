@@ -1,7 +1,7 @@
 import { Aurelia } from 'aurelia-framework';
 import * as environment from '../config/environment.json';
 import { PLATFORM } from 'aurelia-pal';
-import { I18N } from 'aurelia-i18n';
+import { I18N, Backend, TCustomAttribute } from 'aurelia-i18n';
 
 export function configure(aurelia: Aurelia): void {
   aurelia.use
@@ -12,7 +12,7 @@ export function configure(aurelia: Aurelia): void {
       config.settings.startingZIndex = 2000;
     })
     .plugin(PLATFORM.moduleName('aurelia-i18n'), (instance) => {
-      instance.setup({
+      /*instance.setup({
         backend: {
           loadPath: '/locales/{{lng}}/{{ns}}.json',
         },
@@ -21,6 +21,25 @@ export function configure(aurelia: Aurelia): void {
         attributes: ['t', 'i18n'],
         fallbackLng: 'en',
         debug: false
+      });*/
+      const aliases = ['t', 'i18n'];
+      // add aliases for 't' attribute
+      TCustomAttribute.configureAliases(aliases);
+
+      // register backend plugin
+      instance.i18next.use(Backend.with(aurelia.loader));
+
+      // adapt options to your needs (see http://i18next.com/docs/options/)
+      // make sure to return the promise of the setup method, in order to guarantee proper loading
+      return instance.setup({
+        backend: {                                  // <-- configure backend settings
+          loadPath: 'locales/{{lng}}/{{ns}}.json', // <-- XHR settings for where to get the files from
+        },
+        attributes: aliases,
+        lng: 'en',
+        fallbackLng: 'en',
+        load: "currentOnly",
+        debug: true
       });
     });
 

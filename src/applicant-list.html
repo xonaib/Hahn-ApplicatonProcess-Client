@@ -8,8 +8,8 @@
 
     <br />
     <h2>
-        Current Applicants 
-        <small if.bind="applicants.length > 0">(Select any to edit)</small>
+        ${ 'current_applicants' | t }
+        <small if.bind="applicants.length > 0">(${ 'select_applicant_edit' | t })</small>
     </h2>
     <div class="contact-list" if.bind="applicants.length > 0">
         <div class="list-group">
