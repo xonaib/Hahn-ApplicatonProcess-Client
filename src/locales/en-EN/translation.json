@@ -21,7 +21,7 @@
   "save": "Save",
   "messages": {
     "required": "{{field_name}} is required.",
-    "min_length": "Minimum Length should be {{count}} charcters 2.",
+    "min_length": "Minimum Length should be {{count}} charcters.",
     "valid": "{{field_name}} should be valid.",
     "range": "{{field_name}} should be between {{min_count}} and {{max_count}}"
   },
@@ -33,5 +33,5 @@
   "error_deletion_api": "There was some error deleting this applicant. Please try again.",
   "delete_applicant": "Delete applicant",
   "confirmation_delete": "Are you sure you want to delete this Applicant?",
-  "unsaved_changes": "You have unsaved changes. Are you sure you wish to leave?"
+  "unsaved_changes": "You have unsaved changes. Are you sure you wish to leave?"  
 }

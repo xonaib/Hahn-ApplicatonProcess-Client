@@ -77,14 +77,15 @@
             </div>
 
             <!-- CountryOfOrigin -->
-            <div class="form-group row" validation-errors.bind="CountryOfOriginErrors"
-              class.bind="CountryOfOriginErrors.length ? 'has-error' : ''">
+            <div class="form-group row" validation-errors.bind="isValidCountryErrors"
+              class.bind="isValidCountryErrors.length ? 'has-error' : ''">
               <label class="col-md-3 col-form-label">${ 'country' | t }</label>
               <div class="col-md-9">
-                <input type="text" placeholder="country" class.bind="CountryOfOriginErrors.length ? 'is-invalid' : ''"
-                  class="form-control" value.bind="applicant.CountryOfOrigin & validate">
+                <input type="text" placeholder="country" class.bind="isValidCountryErrors.length ? 'is-invalid' : ''"
+                  blur.trigger="validateCountry()" class="form-control"
+                  value.bind="applicant.CountryOfOrigin & validate">
 
-                <span class="help-block" repeat.for="errorInfo of CountryOfOriginErrors">
+                <span class="help-block" repeat.for="errorInfo of isValidCountryErrors">
                   ${errorInfo.error.message}
                 </span>
               </div>

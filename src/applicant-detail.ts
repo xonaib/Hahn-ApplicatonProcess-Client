@@ -1,4 +1,4 @@
-import { inject, NewInstance } from 'aurelia-framework';
+import { inject, NewInstance, bindable, observable } from 'aurelia-framework';
 import { EventAggregator } from 'aurelia-event-aggregator';
 import {
     ValidationRules, ValidationControllerFactory, ValidationController,
@@ -15,7 +15,6 @@ import { areEqual, isNullOrEmpty, isNull } from './resources/utility';
 import { Applicant } from './interfaces/applicant.interface';
 import { ModalOptions } from './interfaces/modal.interface';
 import { ApplicantsAPI } from './services/api.service';
-
 @inject(WebAPI, EventAggregator,
     NewInstance.of(ValidationController), ApplicantsAPI,
     DialogService, Router, I18N)
@@ -29,6 +28,8 @@ export class ContactDetail {
     public isEditMode = false;
 
     public applicant: Applicant = new Applicant();
+    //@observable country ;
+
     //public validationController: ValidationController;
     static inject = [DialogService];
     constructor(private api: WebAPI, private ea: EventAggregator,
@@ -38,6 +39,42 @@ export class ContactDetail {
 
     }
 
+    /*countryChanged(newValue: string, oldValue: string): void {
+        console.log('@@2', newValue, oldValue);
+        this.apiService.getCountry(newValue)
+            .then(result => {
+                console.log(result);
+            });
+    }*/
+
+    validateCountry(): void {
+        const query = this.applicant.CountryOfOrigin;
+        if (isNullOrEmpty(query)) {
+            this.applicant.isValidCountry = false;
+            const errorMsg = this.i18n.tr('messages.valid', { 'field_name': 'Country' })
+            this.validationController.revalidateErrors();
+            this.validationController.addError(errorMsg, this.applicant, 'CountryOfOrigin');
+            return;
+        }
+        this.apiService.getCountry(query)
+            .then(result => {
+                if (result.status === 404) {
+                    // no data was found for country
+                    // show erorr
+                    this.applicant.isValidCountry = false;
+                    // revalidate errors
+                    this.validationController.revalidateErrors();
+                    //this.validationController.removeError({ propertyName: 'CountryOfOrigin' })
+                    const errorMsg = this.i18n.tr('messages.valid', { 'field_name': 'Country' })
+                    this.validationController.addError(errorMsg, this.applicant, 'CountryOfOrigin');
+                    return;
+                }
+                // else valid country
+                this.applicant.isValidCountry = true;
+            });
+    }
+
+    /** Define rulse for object validation */
     addFormValidation(): void {
         this.validationController.reset();
         this.validationController.validateTrigger = validateTrigger.change;
@@ -54,6 +91,8 @@ export class ContactDetail {
             .ensure('Address')
             .required().withMessage(this.i18n.tr('messages.required', { 'field_name': 'Address' }))
             .minLength(10).withMessage(this.i18n.tr('messages.min_length', { 'count': 10 }))
+            .ensure('isValidCountry')
+            .equals(true).withMessage(this.i18n.tr('messages.required', { 'field_name': 'Country' }))
             .ensure('EmailAdress')
             .required().withMessage(this.i18n.tr('messages.required', { 'field_name': 'Email' }))
             .matches(emailRegex).withMessage(this.i18n.tr('messages.valid', { 'field_name': 'Email' }))
@@ -69,9 +108,6 @@ export class ContactDetail {
         console.log('@@ blur from ' + fieldName);
     }
 
-    validateMe(): void {
-        this.validationController.validate();
-    }
 
     activate(params, routeConfig): void {
         this.routeConfig = routeConfig;
@@ -80,6 +116,7 @@ export class ContactDetail {
         this.fetchPageData(params.id);
     }
 
+    /** Fetch Data from server if need be */
     fetchPageData(id?: number): void {
 
         // if id is provided, open in edit mode
@@ -101,7 +138,7 @@ export class ContactDetail {
 
         // create a copy
         this.originalApplicant = this.cloneApplicant(applicant);
-       
+
         this.addFormValidation();
     }
 
@@ -121,6 +158,15 @@ export class ContactDetail {
     fetchApplicant(id: number): void {
         this.apiService.getApplicant(id)
             .then((applicant: Applicant) => {
+                // if no such applicant exists
+                if (isNull(applicant)) {
+                    this.applicant = null;
+                    return;
+                }
+
+                // if applicant exists on server, 
+                // we can trust that this would be a valid applicant
+                applicant.isValidCountry = true;
                 this.prepareApplicantForm(applicant);
             });
     }
@@ -157,10 +203,12 @@ export class ContactDetail {
     get formHasCompleteData(): boolean {
         const formHasData = !isNullOrEmpty(this.applicant.Name)
             && !isNullOrEmpty(this.applicant.FamilyName)
-            && !isNullOrEmpty(this.applicant.CountryOfOrigin)
+            && this.applicant.isValidCountry
+            //&& !isNullOrEmpty(this.applicant.CountryOfOrigin)
             && !isNullOrEmpty(this.applicant.Address)
             && !isNullOrEmpty(this.applicant.EmailAdress)
             && this.applicant.Age > 0;
+            //&& !areEqual(this.originalApplicant, this.applicant);
 
         return formHasData
     }
@@ -169,7 +217,7 @@ export class ContactDetail {
         const modalOptions = new ModalOptions();
         modalOptions.Title = this.i18n.tr('reset');
         modalOptions.ButtonOneText = this.i18n.tr('yes');
-        modalOptions.ModalBody = [this.i18n.tr('confirmation_reset')]; 
+        modalOptions.ModalBody = [this.i18n.tr('confirmation_reset')];
 
         this.openDialog(modalOptions)
             .then((result: DialogCloseResult) => {
@@ -219,7 +267,7 @@ export class ContactDetail {
                     if (result.errors) {
                         // compose error message to display
                         const errorMsgs = this._composeErrorMessage(result.errors);
-                       
+
                         this._displayErrorMessages(errorMsgs);
                     }
                     return;
@@ -240,10 +288,10 @@ export class ContactDetail {
                 if (result.errors) {
                     // compose error message to display
                     const errorMsgs = this._composeErrorMessage(result.errors);
-                   
+
                     this._displayErrorMessages(errorMsgs);
                 }
-                
+
             });
     }
 
@@ -260,9 +308,10 @@ export class ContactDetail {
 
         return messages;
     }
+
     private _displayErrorMessages(errorMessages: string[]): void {
         const modalOptions = new ModalOptions();
-        modalOptions.Title = this.i18n.tr('error_api'); 
+        modalOptions.Title = this.i18n.tr('error_api');
         modalOptions.ModalBody = errorMessages;
 
         this.openDialog(modalOptions)
@@ -285,7 +334,7 @@ export class ContactDetail {
     delete(id: number): void {
         const modalOptions = new ModalOptions();
         modalOptions.Title = this.i18n.tr('delete_applicant');
-        modalOptions.ModalBody = [this.i18n.tr('confirmation_delete')]; 
+        modalOptions.ModalBody = [this.i18n.tr('confirmation_delete')];
         modalOptions.ButtonOneText = this.i18n.tr('yes');
         modalOptions.ButtonTwoText = this.i18n.tr('no');
 
@@ -305,7 +354,7 @@ export class ContactDetail {
                 if (!data) {
                     const modalOptions = new ModalOptions();
                     modalOptions.Title = this.i18n.tr('confirmation_delete');
-                    modalOptions.ModalBody = [this.i18n.tr('error_deletion_api')]; 
+                    modalOptions.ModalBody = [this.i18n.tr('error_deletion_api')];
                     modalOptions.ButtonOneText = this.i18n.tr('ok');
 
                     this.openDialog(modalOptions)
@@ -317,7 +366,7 @@ export class ContactDetail {
     }
 
     canDeactivate(): boolean {
-        
+
         if (!areEqual(this.originalApplicant, this.applicant)) {
             const result = confirm(this.i18n.tr('unsaved_changes'));
 
@@ -326,7 +375,7 @@ export class ContactDetail {
             //}
 
             return result;
-        } 
+        }
 
         return true;
     }

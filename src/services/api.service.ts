@@ -1,16 +1,19 @@
 import { HttpClient } from 'aurelia-fetch-client';
-import { inject } from 'aurelia-framework';
+import { inject, NewInstance } from 'aurelia-framework';
 import { Http2ServerResponse } from 'http2';
 import { Applicant } from '../interfaces/applicant.interface';
 
-@inject(HttpClient)
+@inject(HttpClient, NewInstance.of(HttpClient))
 export class ApplicantsAPI {
-    httpClient: HttpClient;
+    //httpClient: HttpClient;
     applicants: Applicant[];
 
-    constructor(httpClient) {
-        this.httpClient = httpClient;
+    // added two http clients, because did not want to configure to switch base url's
+    constructor(private httpClient: HttpClient,
+        private countryHttpClient: HttpClient) {
+        //this.httpClient = httpClient;
 
+        this.httpClient.isRequesting
         const baseUrl = 'https://localhost:44350/';
         this.httpClient.configure(config => {
             config.withBaseUrl(baseUrl);
@@ -20,6 +23,11 @@ export class ApplicantsAPI {
                 }
             });
         });
+    }
+
+    /** return if any of the http client is requesting */
+    get isRequesting(): boolean {        
+        return this.httpClient.isRequesting || this.countryHttpClient.isRequesting;
     }
 
     getApplicants(): Promise<Applicant[]> {
@@ -79,8 +87,20 @@ export class ApplicantsAPI {
                 }
                 return false;
             })
-            //.then(result => {
-            //    return result;
-            //});
+        //.then(result => {
+        //    return result;
+        //});
+    }
+
+    getCountry(query: string): Promise<any> {
+        const url = `https://restcountries.eu/rest/v2/name/${query}?fullText=true`;
+        return this.countryHttpClient.get(url)
+            .then(response => { 
+                return response.json();
+            })
+            .then(result => {
+                return result;
+            });
+
     }
 }

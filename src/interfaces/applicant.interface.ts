@@ -9,6 +9,7 @@ export class Applicant {
         this.EmailAdress = '';
         this.Age = 21;
         this.Hired = false; 
+        this.isValidCountry = false;
     }
     ID?: number;
     Name: string;
@@ -18,4 +19,5 @@ export class Applicant {
     EmailAdress: string;
     Age: number;
     Hired?: boolean;
+    isValidCountry: boolean;
 }

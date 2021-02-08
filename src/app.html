@@ -14,6 +14,13 @@
     </a>
   </nav>
 
+  <!-- apiService.isRequesting -->
+  <loading-indicator loading.bind="router.isNavigating"></loading-indicator>
+
+  <div class="loaderHolder hidden" id="loaderHolder" class.bind="apiService.isRequesting ? '' : 'hidden'">
+    <div class="loading"></div>
+  </div>
+
   <div class="container-md">
     <div class="row">
       <!-- route-href="route: applicant-edit; params.bind: {id:contact.id}" -->
@@ -22,6 +29,7 @@
         <applicant-list></applicant-list>
       </div> -->
       <!-- class="col-sm-7 col-md-8" -->
+      
       <router-view class="col-sm-12"></router-view>
     </div>
   </div>
