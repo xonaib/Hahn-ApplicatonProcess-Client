@@ -101,6 +101,7 @@ export class ContactDetail {
 
         // create a copy
         this.originalApplicant = this.cloneApplicant(applicant);
+       
         this.addFormValidation();
     }
 
@@ -316,16 +317,16 @@ export class ContactDetail {
     }
 
     canDeactivate(): boolean {
-        //debugger;
-        /*if (!areEqual(this.originalContact, this.contact)) {
-            const result = confirm('You have unsaved changes. Are you sure you wish to leave?');
+        
+        if (!areEqual(this.originalApplicant, this.applicant)) {
+            const result = confirm(this.i18n.tr('unsaved_changes'));
 
-            if (!result) {
-                this.ea.publish(new ContactViewed(this.contact));
-            }
+            //if (!result) {
+            //    this.ea.publish(new ContactViewed(this.contact));
+            //}
 
             return result;
-        } */
+        } 
 
         return true;
     }

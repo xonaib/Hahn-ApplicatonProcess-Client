@@ -1,6 +1,6 @@
 
 export class ModalOptions {
-    public ModalOptions() {
+    public constructor() {
         this.Title = 'Information';
         this.ButtonOneText = 'Ok';
         this.ButtonTwoText = 'Cancel';

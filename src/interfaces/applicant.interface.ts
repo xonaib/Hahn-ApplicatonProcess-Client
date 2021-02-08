@@ -1,6 +1,6 @@
 
 export class Applicant {
-    public Applicant(){
+    public constructor(){
         this.ID = 0;
         this.Name = '';
         this.FamilyName = '';
