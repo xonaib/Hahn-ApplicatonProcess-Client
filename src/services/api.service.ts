@@ -74,11 +74,13 @@ export class ApplicantsAPI {
     deleteApplicant(id: number): Promise<any> {
         return this.httpClient.delete(`applicants/${id}`)
             .then(response => {
-                console.log(response.status);
-                return response.json();
+                if (response.status == 200) {
+                    return true;
+                }
+                return false;
             })
-            .then(result => {
-                return result;
-            });
+            //.then(result => {
+            //    return result;
+            //});
     }
 }

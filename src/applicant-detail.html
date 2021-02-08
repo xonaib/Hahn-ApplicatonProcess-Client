@@ -4,7 +4,6 @@
       <a class="btn btn-primary mb-2" route-href="route: applicants">Back to List</a>
     </div>
   </div>
-  <h2 click.delegate="delete(applicant.ID)">Delete</h2>
 
   <div class="row">
     <div class="col-sm-12">
@@ -15,6 +14,7 @@
         <div class="card-body">
           <form role="form" if.bind="applicant != null">
 
+            <!--
             <div class="form-group row">
               <label class="col-md-3 col-form-label">Errors</label>
               <ul if.bind="validationController.errors">
@@ -23,7 +23,15 @@
                 </li>
               </ul>
             </div>
+          -->
 
+            <div class="form-group row">
+              <div class="col-sm-12">
+                <button class="btn btn-danger mr-2 pull-right" click.delegate="delete(applicant.ID)"
+                  if.bind="isEditMode">Delete</button>
+              </div>
+
+            </div>
 
             <!-- name -->
             <div class="form-group row" validation-errors.bind="NameErrors"
@@ -32,8 +40,7 @@
               <div class="col-md-9">
                 <input type="text" placeholder="first name" autocomplete="off"
                   class.bind="NameErrors.length ? 'is-invalid' : ''" class="form-control"
-                  blur.trigger="inputFieldBlur('Name')"
-                  value.bind="applicant.Name & validate">
+                  blur.trigger="inputFieldBlur('Name')" value.bind="applicant.Name & validate">
 
                 <span class="help-block" repeat.for="errorInfo of NameErrors">
                   ${errorInfo.error.message}
@@ -110,9 +117,21 @@
                 </span>
               </div>
             </div>
+
+            <!-- Hired -->
+            <div class="form-group row">
+              <label class="col-md-3 col-form-label">Hired</label>
+              <div class="col-md-9">
+                <div class="form-check">
+                  <input type="checkbox" class="form-check-input" checked.bind="applicant.Hired" />
+                </div>
+
+
+              </div>
+            </div>
+
           </form>
 
-          <!-- Hired -->
 
           <!-- buttons -->
           <div>

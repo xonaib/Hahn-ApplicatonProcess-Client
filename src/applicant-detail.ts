@@ -123,8 +123,9 @@ export class ContactDetail {
 
     /** can reset if there is some data in form */
     get canReset(): boolean {
-        return (!isNullOrEmpty(this.applicant.Name) || !isNullOrEmpty(this.applicant.FamilyName)
-            || !isNullOrEmpty(this.applicant.Address) || !isNullOrEmpty(this.applicant.CountryOfOrigin));
+        //return (!isNullOrEmpty(this.applicant.Name) || !isNullOrEmpty(this.applicant.FamilyName)
+        //    || !isNullOrEmpty(this.applicant.Address) || !isNullOrEmpty(this.applicant.CountryOfOrigin));
+        return !areEqual(this.applicant, this.originalApplicant);
     }
 
     /** CanSave: if data in form is valid */
@@ -153,7 +154,8 @@ export class ContactDetail {
             && !isNullOrEmpty(this.applicant.FamilyName)
             && !isNullOrEmpty(this.applicant.CountryOfOrigin)
             && !isNullOrEmpty(this.applicant.Address)
-            && !isNullOrEmpty(this.applicant.EmailAdress);
+            && !isNullOrEmpty(this.applicant.EmailAdress)
+            && this.applicant.Age > 0;
 
         return formHasData
     }
@@ -277,9 +279,36 @@ export class ContactDetail {
     }
 
     delete(id: number): void {
-        this.apiService.deleteApplicant(0)
-            .then(data => {
-                debugger;
+        const modalOptions = new ModalOptions();
+        modalOptions.Title = 'Delete applicant';
+        modalOptions.ModalBody = ['Are you sure you want to delete this user?'];
+        modalOptions.ButtonOneText = 'Yes';
+        modalOptions.ButtonTwoText = 'No';
+
+        this.openDialog(modalOptions)
+            .then((result: DialogCloseResult) => {
+                if (!result.wasCancelled) {
+                    this._deleteUser(id);
+                }
+            });
+
+
+    }
+
+    private _deleteUser(id: number): void {
+        this.apiService.deleteApplicant(id)
+            .then((data: boolean) => {
+                if (!data) {
+                    const modalOptions = new ModalOptions();
+                    modalOptions.Title = 'Delete applicant';
+                    modalOptions.ModalBody = ['There was some error deleting this applicant. Please try again.'];
+                    modalOptions.ButtonOneText = 'Ok';
+
+                    this.openDialog(modalOptions)
+                }
+                else {
+                    this.router.navigateToRoute('applicants');
+                }
             })
     }
 
