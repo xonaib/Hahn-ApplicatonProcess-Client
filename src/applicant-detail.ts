@@ -19,18 +19,16 @@ import { ApplicantsAPI } from './services/api.service';
     NewInstance.of(ValidationController), ApplicantsAPI,
     DialogService, Router, I18N)
 export class ContactDetail {
-    //public api: any;
+    
     public routeConfig: any;
-    //public contact: any;
+    
     public originalApplicant: Applicant;
-    //public ea: EventAggregator;
+    
     public applicantId: number;
     public isEditMode = false;
 
     public applicant: Applicant = new Applicant();
-    //@observable country ;
-
-    //public validationController: ValidationController;
+    
     static inject = [DialogService];
     constructor(private api: WebAPI, private ea: EventAggregator,
         private validationController: ValidationController,
@@ -39,15 +37,9 @@ export class ContactDetail {
 
     }
 
-    /*countryChanged(newValue: string, oldValue: string): void {
-        console.log('@@2', newValue, oldValue);
-        this.apiService.getCountry(newValue)
-            .then(result => {
-                console.log(result);
-            });
-    }*/
+  
 
-    validateCountry(): void {
+    validateCountry(): void {        
         const query = this.applicant.CountryOfOrigin;
         if (isNullOrEmpty(query)) {
             this.applicant.isValidCountry = false;
@@ -174,8 +166,7 @@ export class ContactDetail {
 
     /** can reset if there is some data in form */
     get canReset(): boolean {
-        //return (!isNullOrEmpty(this.applicant.Name) || !isNullOrEmpty(this.applicant.FamilyName)
-        //    || !isNullOrEmpty(this.applicant.Address) || !isNullOrEmpty(this.applicant.CountryOfOrigin));
+        
         return !areEqual(this.applicant, this.originalApplicant);
     }
 
@@ -184,8 +175,7 @@ export class ContactDetail {
         return ((isNull(this.validationController.errors) || this.validationController.errors.length == 0))
             && this.formHasCompleteData;
 
-        //return (!isNullOrEmpty(this.applicant.Name) && !isNullOrEmpty(this.applicant.FamilyName) 
-        //    && !isNullOrEmpty(this.applicant.Address));
+        
     }
 
     /** if any form field has data */
@@ -204,7 +194,6 @@ export class ContactDetail {
         const formHasData = !isNullOrEmpty(this.applicant.Name)
             && !isNullOrEmpty(this.applicant.FamilyName)
             && this.applicant.isValidCountry
-            //&& !isNullOrEmpty(this.applicant.CountryOfOrigin)
             && !isNullOrEmpty(this.applicant.Address)
             && !isNullOrEmpty(this.applicant.EmailAdress)
             && this.applicant.Age > 0;
@@ -239,12 +228,6 @@ export class ContactDetail {
             });
 
 
-        /*this.api.saveContact(this.contact).then(contact => {
-            this.contact = contact;
-            this.routeConfig.navModel.setTitle(contact.firstName);
-            this.originalContact = JSON.parse(JSON.stringify(contact));
-            this.ea.publish(new ContactUpdated(this.contact));
-        });*/
     }
 
     saveApplicant(applicant: Applicant): void {
@@ -385,10 +368,6 @@ export class ContactDetail {
 
         if (!this.areEqualApplicant(this.originalApplicant, this.applicant)) {
             const result = confirm(this.i18n.tr('unsaved_changes'));
-
-            //if (!result) {
-            //    this.ea.publish(new ContactViewed(this.contact));
-            //}
 
             return result;
         }
