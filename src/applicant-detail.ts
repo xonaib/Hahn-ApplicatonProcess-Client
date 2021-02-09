@@ -272,7 +272,9 @@ export class ContactDetail {
                     }
                     return;
                 }
-                this.router.navigateToRoute('applicants');
+
+                this.originalApplicant = this.applicant;
+                this.router.navigateToRoute('appicant-success');
             });
     }
 
@@ -281,7 +283,8 @@ export class ContactDetail {
         this.apiService.putApplicant(this.applicant.ID, this.applicant)
             .then(result => {
                 if (result === true) {
-                    this.router.navigateToRoute('applicants');
+                    this.originalApplicant = this.applicant;
+                    this.router.navigateToRoute('appicant-success');
                     return;
                 }
                 // there was some error while saving
@@ -365,9 +368,22 @@ export class ContactDetail {
             })
     }
 
+    areEqualApplicant(applicant1: Applicant, applicant2: Applicant): boolean {
+        if(applicant1.Name == applicant2.Name 
+            && applicant1.FamilyName == applicant2.FamilyName
+            && applicant1.Address == applicant2.Address
+            && applicant1.Age == applicant2.Age
+            && applicant1.CountryOfOrigin == applicant2.CountryOfOrigin
+            && applicant1.EmailAdress == applicant2.EmailAdress){
+                return true;
+            }
+
+            return false;
+    }
+
     canDeactivate(): boolean {
 
-        if (!areEqual(this.originalApplicant, this.applicant)) {
+        if (!this.areEqualApplicant(this.originalApplicant, this.applicant)) {
             const result = confirm(this.i18n.tr('unsaved_changes'));
 
             //if (!result) {

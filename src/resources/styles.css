@@ -1,4 +1,6 @@
-body { padding-top: 70px; }
+body {
+  padding-top: 70px;
+}
 
 section {
   margin: 0 20px;
@@ -9,7 +11,7 @@ a:focus {
 }
 
 .navbar-nav li.loader {
-    margin: 12px 24px 0 6px;
+  margin: 12px 24px 0 6px;
 }
 
 .no-selection {
@@ -56,10 +58,8 @@ ux-dialog {
 }
 ux-dialog-overlay.active {
   background-color: black;
-  opacity: .5;
+  opacity: 0.5;
 }
-
-
 
 ux-dialog-container {
   display: flex;
@@ -75,8 +75,8 @@ ux-dialog-container > div {
   bottom: 0;
   height: 100%;
   left: 0;
-  opacity: .95;
-  -moz-opacity: .95;
+  opacity: 0.95;
+  -moz-opacity: 0.95;
   position: fixed;
   right: 0;
   top: 0;
@@ -89,12 +89,31 @@ ux-dialog-container > div {
 }
 
 .loading {
-    left: 50%;
-    margin-top: -30px;
-    position: fixed;
-    top: 50%;
-    margin-left: -30px;
-    width: 60px;
-    height: 60px;
-    background: url(all-loader.gif) no-repeat 50%;
+  left: 50%;
+  margin-top: -30px;
+  position: fixed;
+  top: 50%;
+  margin-left: -30px;
+  width: 60px;
+  height: 60px;
+  background: url(all-loader.gif) no-repeat 50%;
+}
+
+#container {
+  display: flex; 
+  flex-direction: row; 
+  justify-content: center; 
+  align-items: center;
+  height: 300px; 
+  
+}
+
+.box {
+  width: 500px;
+  margin: 5px;
+  text-align: center;
+}
+
+.rounded {
+  border-radius:.25rem!important
 }

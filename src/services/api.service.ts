@@ -3,6 +3,7 @@ import { inject, NewInstance } from 'aurelia-framework';
 import { Http2ServerResponse } from 'http2';
 import { Applicant } from '../interfaces/applicant.interface';
 
+import { APP_CONSTANTS } from '../app.constants';
 @inject(HttpClient, NewInstance.of(HttpClient))
 export class ApplicantsAPI {
     //httpClient: HttpClient;
@@ -14,7 +15,7 @@ export class ApplicantsAPI {
         //this.httpClient = httpClient;
 
         this.httpClient.isRequesting
-        const baseUrl = 'https://localhost:44350/';
+        const baseUrl = APP_CONSTANTS.APPLICANTS_API_URL;
         this.httpClient.configure(config => {
             config.withBaseUrl(baseUrl);
             config.withDefaults({
@@ -26,7 +27,7 @@ export class ApplicantsAPI {
     }
 
     /** return if any of the http client is requesting */
-    get isRequesting(): boolean {        
+    get isRequesting(): boolean {
         return this.httpClient.isRequesting || this.countryHttpClient.isRequesting;
     }
 
@@ -93,9 +94,9 @@ export class ApplicantsAPI {
     }
 
     getCountry(query: string): Promise<any> {
-        const url = `https://restcountries.eu/rest/v2/name/${query}?fullText=true`;
+        const url = `${APP_CONSTANTS.COUNTRIES_API}/${query}?fullText=true`;
         return this.countryHttpClient.get(url)
-            .then(response => { 
+            .then(response => {
                 return response.json();
             })
             .then(result => {

@@ -31,7 +31,8 @@ export class App {
     // { route: '',              moduleId: PLATFORM.moduleName('no-selection'),   title: 'Select' },
     config.map([
       { route: '', moduleId: PLATFORM.moduleName('applicant-list'), name: 'applicants' },
-      { route: 'applicant/:id?', moduleId: PLATFORM.moduleName('applicant-detail'), name: 'applicant-edit' }
+      { route: 'applicant/:id?', moduleId: PLATFORM.moduleName('applicant-detail'), name: 'applicant-edit' },
+      { route: 'success', moduleId: PLATFORM.moduleName('applicant-save-success'), name: 'appicant-success' }
     ]);
 
     this.router = router;
